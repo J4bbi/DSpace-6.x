@@ -161,7 +161,7 @@ public class ItemsResource extends Resource
         {
             context = createContext();
 
-            Iterator<org.dspace.content.Item> dspaceItems = itemService.findAllUnfiltered(context);
+            //Iterator<org.dspace.content.Item> dspaceItems = itemService.findAllUnfiltered(context);
             items = new ArrayList<Item>();
 
             if (!((limit != null) && (limit >= 0) && (offset != null) && (offset >= 0)))
@@ -171,19 +171,25 @@ public class ItemsResource extends Resource
                 offset = 0;
             }
 
-            for (int i = 0; (dspaceItems.hasNext()) && (i < (limit + offset)); i++)
+            Iterator<org.dspace.content.Item> dspaceItems = itemService.findAllAuthorized(context, limit.intValue(), offset.intValue());
+
+            log.info("Find all authorize done.");
+
+            /*for (int i = 0; (dspaceItems.hasNext()) && (i < (limit + offset)); i++)
             {
                 org.dspace.content.Item dspaceItem = dspaceItems.next();
-                if (i >= offset)
+                if (i >= offset)*/
+                while(dspaceItems.hasNext())
                 {
+                    org.dspace.content.Item dspaceItem = dspaceItems.next();
                     if (itemService.isItemListedForUser(context, dspaceItem))
                     {
                         items.add(new Item(dspaceItem, servletContext, expand, context));
                         writeStats(dspaceItem, UsageEvent.Action.VIEW, user_ip, user_agent, xforwardedfor,
                                 headers, request, context);
                     }
-                }
-            }
+                }/*
+            }*/
             context.complete();
         }
         catch (SQLException e)
@@ -193,6 +199,10 @@ public class ItemsResource extends Resource
         catch (ContextException e)
         {
             processException("Something went wrong while reading items, ContextException. Message: " + e.getMessage(), context);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            processException("General exception. Message: " + e, context);
         }
         finally
         {
