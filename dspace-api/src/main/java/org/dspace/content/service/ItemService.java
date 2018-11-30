@@ -10,6 +10,7 @@ package org.dspace.content.service;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.*;
+import org.dspace.content.Collection;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -17,10 +18,7 @@ import org.dspace.eperson.Group;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Service interface class for the Item object.
@@ -68,6 +66,18 @@ public interface ItemService extends DSpaceObjectService<Item>, DSpaceObjectLega
      * @throws SQLException if database error
      */
     public Iterator<Item> findAll(Context context) throws SQLException;
+
+    /**
+     * Get all the items in the archive. Only items with the "in archive" flag
+     * set are included. The order of the list is indeterminate.
+     *
+     * @param context DSpace context object
+     * @param limit limit
+     * @param offset offset
+     * @return an iterator over the items in the archive.
+     * @throws SQLException if database error
+     */
+    public Iterator<Item> findAll(Context context, Integer limit, Integer offset) throws SQLException;
 
     /**
      * Get all "final" items in the archive, both archived ("in archive" flag) or
@@ -613,4 +623,9 @@ public interface ItemService extends DSpaceObjectService<Item>, DSpaceObjectLega
 	 * @return <code>true</code> if the item is linked to a workspaceitem or workflowitem
 	 */
     boolean isInProgressSubmission(Context context, Item item) throws SQLException;
+
+    Iterator<Item> findAllAuthorized(Context context, int pageSize, int pageOffset) throws SQLException;
+
+    int countTotalAuthorized(Context context) throws SQLException;
+
 }
